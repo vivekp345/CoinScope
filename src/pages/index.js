@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import Layout from '../components/Layout'; // <--- This brings back the Home/About buttons!
-import CoinCard from '../components/CoinCard'; // <--- Uses the reusable card
-import { getTopCoins } from '../lib/api'; // <--- Uses the crash-proof API
+import Layout from '../components/Layout'; 
+import CoinCard from '../components/CoinCard'; 
+import { getTopCoins } from '../lib/api'; 
 
 export default function Home({ coins }) {
   // 1. YOUR SEARCH LOGIC
@@ -46,7 +46,7 @@ export default function Home({ coins }) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredCoins.length > 0 ? (
             filteredCoins.map((coin) => (
-              // We use the reusable CoinCard component here
+              
               <CoinCard key={coin.id} coin={coin} />
             ))
           ) : (
@@ -62,7 +62,7 @@ export default function Home({ coins }) {
 
 // SERVER-SIDE RENDERING (SSR)
 export async function getServerSideProps() {
-  // We use our helper function which handles 429 Errors automatically
+  
   const coins = await getTopCoins();
 
   return {

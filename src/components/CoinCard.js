@@ -27,7 +27,7 @@ export default function CoinCard({ coin }) {
         {/* Price Section */}
         <div className="space-y-2">
           <p className="text-3xl font-extrabold text-slate-900">
-            {/* FORCE 'en-US' to fix Hydration Error in India */}
+           
             ${coin.current_price.toLocaleString('en-US')}
           </p>
           

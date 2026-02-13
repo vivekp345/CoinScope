@@ -4,7 +4,7 @@ import Layout from '../../components/Layout';
 import { getCoinData } from '../../lib/api';
 
 export default function CoinDetail({ coin }) {
-  // 1. Safety Check: If the coin doesn't exist, show a clean error state.
+  // 1. Safety Check: If the coin doesn't exist
   if (!coin) {
     return (
       <Layout>
@@ -19,13 +19,12 @@ export default function CoinDetail({ coin }) {
   }
 
   // 2. DYNAMIC SEO METADATA
-  // We build the title and description using the real data from the API.
+ 
   const seoTitle = `${coin.name} (${coin.symbol.toUpperCase()}) Price Today | CoinScope`;
   const seoDescription = `Live ${coin.name} price is $${coin.market_data.current_price.usd.toLocaleString()}. Market cap: $${coin.market_data.market_cap.usd.toLocaleString()}. Get real-time charts and data.`;
 
   // 3. STRUCTURED DATA (JSON-LD)
-  // This is the "Secret Sauce" for Google. It helps generate Rich Snippets.
-  const jsonLd = {
+   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FinancialProduct",
     "name": coin.name,
@@ -43,23 +42,26 @@ export default function CoinDetail({ coin }) {
 
   return (
     <Layout>
-      {/* Dynamic Head Tags for SEO */}
       <Head>
-        <title>{seoTitle}</title>
-        <meta name="description" content={seoDescription} />
-        
-        {/* OpenGraph Tags for Social Media */}
-        <meta property="og:title" content={seoTitle} />
-        <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={coin.image.large} />
-        <meta property="og:type" content="website" />
-        
-        {/* Inject JSON-LD Schema */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      </Head>
+  <title>{seoTitle}</title>
+  <meta name="description" content={seoDescription} />
+  
+  {/* OpenGraph Tags */}
+  <meta property="og:title" content={seoTitle} />
+  <meta property="og:description" content={seoDescription} />
+  
+  
+  {coin.image?.large && (
+    <meta property="og:image" content={coin.image.large} />
+  )}
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={`https://coin-scope-chi.vercel.app/crypto/${coin.id}`} />
+
+  
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content={coin.image?.large} />
+</Head>
 
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
@@ -122,13 +124,13 @@ function StatCard({ label, value }) {
 
 // 4. SERVER-SIDE RENDERING (SSR)
 export async function getServerSideProps(context) {
-  const { id } = context.params; // Get the ID from the URL (e.g., 'bitcoin')
+  const { id } = context.params; 
   
   const coin = await getCoinData(id);
 
   if (!coin) {
     return {
-      notFound: true, // Returns a 404 page if coin doesn't exist
+      notFound: true,
     };
   }
 
