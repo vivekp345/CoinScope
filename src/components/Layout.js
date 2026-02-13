@@ -2,22 +2,35 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-export default function Layout({ children, title = 'CoinScope | Real-Time Crypto Insights' }) {
+// ADDED 'description' HERE in the props list
+export default function Layout({ children, title = 'CoinScope | Real-Time Crypto Insights', description }) {
   const router = useRouter();
 
-  // Helper to highlight active link
   const isActive = (path) => {
     return router.pathname === path 
       ? 'bg-blue-600 text-white' 
       : 'text-gray-600 hover:bg-gray-100';
   };
 
+  const defaultDesc = "Track real-time cryptocurrency prices, market caps, and trends on CoinScope.";
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       <Head>
+        {/* Primary Meta Tags */}
         <title>{title}</title>
-        <meta name="robots" content="index, follow" />
+        <meta name="description" content={description || defaultDesc} />
         <link rel="icon" href="/favicon.ico" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        {/* OpenGraph / Facebook */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={title} />
+        <meta property="og:description" content={description || defaultDesc} />
+        <meta property="og:site_name" content="CoinScope" />
+
+        {/* Indexing */}
+        <meta name="robots" content="index, follow" />
       </Head>
 
       {/* TOP NAVIGATION BAR */}
@@ -25,22 +38,22 @@ export default function Layout({ children, title = 'CoinScope | Real-Time Crypto
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-20 items-center justify-between">
             
-            {/* 1. LEFT: Logo */}
-     {/* LEFT: Financial Brand Identity */}
-<div className="flex-shrink-0 flex items-center z-10">
-  <Link href="/" className="flex items-center gap-3 group">
-    <div className="bg-blue-600 p-2 rounded-lg shadow-md group-hover:bg-blue-700 transition-all">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-        <path d="M12 2l9 4.5v11L12 22l-9-4.5v-11z" />
-        <path d="M8 12l3-3 2 2 3-3" />
-      </svg>
-    </div>
-    <span className="text-2xl font-black text-slate-900 tracking-tight">
-      CoinScope
-    </span>
-  </Link>
-</div>    
-            {/* 2. RIGHT: Home & About Buttons */}
+            {/* LEFT: Financial Brand Identity */}
+            <div className="flex-shrink-0 flex items-center z-10">
+              <Link href="/" className="flex items-center gap-3 group">
+                <div className="bg-blue-600 p-2 rounded-lg shadow-md group-hover:bg-blue-700 transition-all">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                    <path d="M12 2l9 4.5v11L12 22l-9-4.5v-11z" />
+                    <path d="M8 12l3-3 2 2 3-3" />
+                  </svg>
+                </div>
+                <span className="text-2xl font-black text-slate-900 tracking-tight">
+                  CoinScope
+                </span>
+              </Link>
+            </div>    
+
+            {/* RIGHT: Home & About Buttons */}
             <div className="flex items-center space-x-4">
               <Link 
                 href="/" 

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://coin-scope-chi.vercel.app/sitemap.xml

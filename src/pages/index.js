@@ -13,7 +13,10 @@ export default function Home({ coins }) {
   );
 
   return (
-    <Layout>
+   <Layout 
+  title="CoinScope | Real-Time Crypto Prices & Market Insights"
+  description="Track live cryptocurrency prices, market trends, and detailed analytics for Bitcoin, Ethereum, and more on CoinScope."
+>
       {/* Hero Section */}
       <section className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">
