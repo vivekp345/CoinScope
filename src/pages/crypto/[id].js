@@ -7,7 +7,7 @@ export default function CoinDetail({ coin }) {
   // 1. Safety Check: If the coin doesn't exist
   if (!coin) {
     return (
-      <Layout>
+      <Layout title="Coin Not Found | CoinScope">
         <div className="text-center py-20">
           <h1 className="text-3xl font-bold text-slate-900 mb-4">Coin Not Found</h1>
           <Link href="/" className="text-blue-600 hover:underline">
@@ -18,50 +18,52 @@ export default function CoinDetail({ coin }) {
     );
   }
 
-  // 2. DYNAMIC SEO METADATA
- 
-  const seoTitle = `${coin.name} (${coin.symbol.toUpperCase()}) Price Today | CoinScope`;
-  const seoDescription = `Live ${coin.name} price is $${coin.market_data.current_price.usd.toLocaleString()}. Market cap: $${coin.market_data.market_cap.usd.toLocaleString()}. Get real-time charts and data.`;
+  // 2. DYNAMIC SEO METADATA (with safety checks)
+  const coinPrice = coin.market_data?.current_price?.usd?.toLocaleString() || '0.00';
+  const marketCap = coin.market_data?.market_cap?.usd?.toLocaleString() || '0.00';
+  
+  const seoTitle = `${coin.name} (${coin.symbol?.toUpperCase()}) Price Today | CoinScope`;
+  const seoDescription = `Live ${coin.name} price is $${coinPrice}. Market cap: $${marketCap}. Get real-time charts and data.`;
 
   // 3. STRUCTURED DATA (JSON-LD)
-   const jsonLd = {
+  const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FinancialProduct",
     "name": coin.name,
-    "image": coin.image.large,
+    "image": coin.image?.large,
     "description": seoDescription,
     "brand": "CoinScope",
     "offers": {
       "@type": "Offer",
-      "url": `https://coinscope-demo.vercel.app/crypto/${coin.id}`,
+      "url": `https://coin-scope-chi.vercel.app/crypto/${coin.id}`,
       "priceCurrency": "USD",
-      "price": coin.market_data.current_price.usd,
+      "price": coin.market_data?.current_price?.usd || 0,
       "availability": "https://schema.org/InStock"
     }
   };
 
   return (
-    <Layout>
+    <Layout title={seoTitle} description={seoDescription}>
       <Head>
-  <title>{seoTitle}</title>
-  <meta name="description" content={seoDescription} />
-  
-  {/* OpenGraph Tags */}
-  <meta property="og:title" content={seoTitle} />
-  <meta property="og:description" content={seoDescription} />
-  
-  
-  {coin.image?.large && (
-    <meta property="og:image" content={coin.image.large} />
-  )}
-  
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content={`https://coin-scope-chi.vercel.app/crypto/${coin.id}`} />
+        {/* Structured Data injection */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        
+        {/* OpenGraph Tags */}
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        {coin.image?.large && (
+          <meta property="og:image" content={coin.image.large} />
+        )}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://coin-scope-chi.vercel.app/crypto/${coin.id}`} />
 
-  
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content={coin.image?.large} />
-</Head>
+        {/* Twitter Tags */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={coin.image?.large} />
+      </Head>
 
       <div className="max-w-4xl mx-auto">
         {/* Breadcrumb */}
@@ -75,17 +77,19 @@ export default function CoinDetail({ coin }) {
 
         {/* Header Section */}
         <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 mb-8 flex flex-col md:flex-row items-center gap-8">
-          <img src={coin.image.large} alt={coin.name} className="w-24 h-24" />
+          {coin.image?.large && (
+            <img src={coin.image.large} alt={coin.name} className="w-24 h-24" />
+          )}
           <div className="text-center md:text-left flex-grow">
             <h1 className="text-4xl font-extrabold text-slate-900 mb-2">
-              {coin.name} <span className="text-slate-400 text-2xl font-normal">({coin.symbol.toUpperCase()})</span>
+              {coin.name} <span className="text-slate-400 text-2xl font-normal">({coin.symbol?.toUpperCase()})</span>
             </h1>
             <div className="flex flex-col md:flex-row items-center gap-4 mt-2">
               <span className="text-5xl font-bold text-slate-900">
-                ${coin.market_data.current_price.usd.toLocaleString()}
+                ${coinPrice}
               </span>
-              <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${coin.market_data.price_change_percentage_24h >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                {coin.market_data.price_change_percentage_24h.toFixed(2)}% (24h)
+              <span className={`px-4 py-1.5 rounded-full text-sm font-bold ${ (coin.market_data?.price_change_percentage_24h || 0) >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                {coin.market_data?.price_change_percentage_24h?.toFixed(2) || '0.00'}% (24h)
               </span>
             </div>
           </div>
@@ -93,10 +97,10 @@ export default function CoinDetail({ coin }) {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <StatCard label="Market Cap" value={`$${coin.market_data.market_cap.usd.toLocaleString()}`} />
-          <StatCard label="24h High" value={`$${coin.market_data.high_24h.usd.toLocaleString()}`} />
-          <StatCard label="24h Low" value={`$${coin.market_data.low_24h.usd.toLocaleString()}`} />
-          <StatCard label="Circulating Supply" value={coin.market_data.circulating_supply.toLocaleString()} />
+          <StatCard label="Market Cap" value={`$${marketCap}`} />
+          <StatCard label="24h High" value={`$${coin.market_data?.high_24h?.usd?.toLocaleString() || '0.00'}`} />
+          <StatCard label="24h Low" value={`$${coin.market_data?.low_24h?.usd?.toLocaleString() || '0.00'}`} />
+          <StatCard label="Circulating Supply" value={coin.market_data?.circulating_supply?.toLocaleString() || '0'} />
         </div>
 
         {/* Description Section */}
@@ -104,7 +108,7 @@ export default function CoinDetail({ coin }) {
           <h2 className="text-2xl font-bold text-slate-900 mb-4">About {coin.name}</h2>
           <div 
             className="prose prose-slate max-w-none text-slate-600 leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: coin.description.en || `<p>No description available for ${coin.name}.</p>` }}
+            dangerouslySetInnerHTML={{ __html: coin.description?.en || `<p>No description available for ${coin.name}.</p>` }}
           />
         </div>
       </div>
@@ -125,18 +129,13 @@ function StatCard({ label, value }) {
 // 4. SERVER-SIDE RENDERING (SSR)
 export async function getServerSideProps(context) {
   const { id } = context.params; 
-  
   const coin = await getCoinData(id);
 
   if (!coin) {
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   }
 
   return {
-    props: {
-      coin,
-    },
+    props: { coin },
   };
 }
