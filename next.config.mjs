@@ -1,7 +1,14 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  /* config options here */
+// next.config.mjs
+export default () => ({
   reactStrictMode: true,
-};
 
-export default nextConfig;
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "assets.coingecko.com",
+        pathname: "/coins/images/**",
+      },
+    ],
+  },
+});

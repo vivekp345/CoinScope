@@ -1,0 +1,10 @@
+{
+  "name": "CoinScope Pro",
+  "short_name": "CoinScope",
+  "description": "Live crypto prices and virtual portfolio simulator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": []
+}

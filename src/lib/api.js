@@ -1,81 +1,172 @@
+// src/lib/api.js
 
-const BASE_URL = 'https://api.coingecko.com/api/v3';
+const COINGECKO_BASE = "https://api.coingecko.com/api/v3";
 
-const MOCK_TOP_COINS = [
-  { id: "bitcoin", symbol: "btc", name: "Bitcoin", image: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png", current_price: 43210.50, market_cap: 845000000000, market_cap_rank: 1, price_change_percentage_24h: 2.4 },
-  { id: "ethereum", symbol: "eth", name: "Ethereum", image: "https://assets.coingecko.com/coins/images/279/large/ethereum.png", current_price: 2240.50, market_cap: 270000000000, market_cap_rank: 2, price_change_percentage_24h: -1.2 },
-  { id: "solana", symbol: "sol", name: "Solana", image: "https://assets.coingecko.com/coins/images/4128/large/solana.png", current_price: 98.25, market_cap: 42000000000, market_cap_rank: 5, price_change_percentage_24h: 5.8 },
-  { id: "cardano", symbol: "ada", name: "Cardano", image: "https://assets.coingecko.com/coins/images/975/large/cardano.png", current_price: 0.55, market_cap: 19000000000, market_cap_rank: 8, price_change_percentage_24h: 1.1 },
-  { id: "ripple", symbol: "xrp", name: "XRP", image: "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png", current_price: 0.62, market_cap: 34000000000, market_cap_rank: 6, price_change_percentage_24h: -0.5 },
-  { id: "polkadot", symbol: "dot", name: "Polkadot", image: "https://assets.coingecko.com/coins/images/12171/large/polkadot.png", current_price: 7.20, market_cap: 9000000000, market_cap_rank: 11, price_change_percentage_24h: -2.3 },
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+async function safeFetch(url, fallback) {
+  try {
+    const res = await fetch(url, {
+      // Uncomment if you have a CoinGecko API key:
+      // headers: { "x-cg-demo-api-key": process.env.COINGECKO_API_KEY },
+    });
+    if (!res.ok) throw new Error(`CoinGecko ${res.status}`);
+    return await res.json();
+  } catch (err) {
+    console.warn("CoinGecko fetch failed, using fallback:", err.message);
+    return fallback;
+  }
+}
+
+// ── Coin list (home page) ─────────────────────────────────────────────────────
+
+export async function fetchCoins(page = 1, perPage = 50) {
+  const url =
+    `${COINGECKO_BASE}/coins/markets` +
+    `?vs_currency=usd` +
+    `&order=market_cap_desc` +
+    `&per_page=${perPage}` +
+    `&page=${page}` +
+    `&sparkline=false`;
+
+  return safeFetch(url, MOCK_COINS);
+}
+
+// ── Coin detail ───────────────────────────────────────────────────────────────
+
+export async function fetchCoinDetail(id) {
+  const url =
+    `${COINGECKO_BASE}/coins/${id}` +
+    `?localization=false` +
+    `&tickers=false` +
+    `&community_data=false` +
+    `&developer_data=false`;
+
+  return safeFetch(url, MOCK_COIN_DETAIL);
+}
+
+// ── 7-day price history ───────────────────────────────────────────────────────
+
+export async function fetchPriceHistory(id) {
+  const url =
+    `${COINGECKO_BASE}/coins/${id}/market_chart` +
+    `?vs_currency=usd` +
+    `&days=7` +
+    `&interval=daily`;
+
+  const data = await safeFetch(url, { prices: MOCK_PRICE_HISTORY });
+
+  return (data.prices ?? []).map(([ts, price]) => ({
+    date:  new Date(ts).toLocaleDateString("en-US", {
+      weekday: "short",
+      month:   "short",
+      day:     "numeric",
+    }),
+    price: Math.round(price * 100) / 100,
+  }));
+}
+
+// ── Current prices (portfolio) ────────────────────────────────────────────────
+
+export async function fetchCurrentPrices(coinIds = []) {
+  if (!coinIds.length) return {};
+
+  const url =
+    `${COINGECKO_BASE}/simple/price` +
+    `?ids=${coinIds.join(",")}` +
+    `&vs_currencies=usd`;
+
+  const data = await safeFetch(url, {});
+
+  return Object.fromEntries(
+    Object.entries(data).map(([id, val]) => [id, val?.usd ?? 0])
+  );
+}
+
+// ── Fear & Greed sentiment ────────────────────────────────────────────────────
+
+export async function fetchSentiment() {
+  // Free public API — no key required
+  // Docs: https://alternative.me/crypto/fear-and-greed-index/
+  const data = await safeFetch(
+    "https://api.alternative.me/fng/?limit=1",
+    { data: [{ value: "50", value_classification: "Neutral", timestamp: "" }] }
+  );
+
+  const entry = data?.data?.[0];
+
+  return {
+    value:     parseInt(entry?.value ?? "50", 10),
+    label:     entry?.value_classification ?? "Neutral",
+    updatedAt: entry?.timestamp
+      ? new Date(parseInt(entry.timestamp, 10) * 1000).toLocaleDateString(
+          "en-US",
+          { day: "numeric", month: "short", year: "numeric" }
+        )
+      : null,
+  };
+}
+
+// ── Mock data fallbacks ───────────────────────────────────────────────────────
+
+export const MOCK_COINS = [
+  {
+    id:                               "bitcoin",
+    symbol:                           "btc",
+    name:                             "Bitcoin",
+    image:                            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png",
+    current_price:                    65000,
+    market_cap:                       1270000000000,
+    market_cap_rank:                  1,
+    total_volume:                     28000000000,
+    price_change_percentage_24h:      2.4,
+    circulating_supply:               19700000,
+  },
+  {
+    id:                               "ethereum",
+    symbol:                           "eth",
+    name:                             "Ethereum",
+    image:                            "https://assets.coingecko.com/coins/images/279/large/ethereum.png",
+    current_price:                    3200,
+    market_cap:                       385000000000,
+    market_cap_rank:                  2,
+    total_volume:                     14000000000,
+    price_change_percentage_24h:      -1.2,
+    circulating_supply:               120000000,
+  },
+  {
+    id:                               "solana",
+    symbol:                           "sol",
+    name:                             "Solana",
+    image:                            "https://assets.coingecko.com/coins/images/4128/large/solana.png",
+    current_price:                    145,
+    market_cap:                       63000000000,
+    market_cap_rank:                  5,
+    total_volume:                     3200000000,
+    price_change_percentage_24h:      3.8,
+    circulating_supply:               435000000,
+  },
 ];
 
-const MOCK_COIN_DETAILS = {
-  id: "bitcoin",
+export const MOCK_COIN_DETAIL = {
+  id:     "bitcoin",
   symbol: "btc",
-  name: "Bitcoin",
-  image: { large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png" },
-  description: { en: "Bitcoin is the first decentralized digital currency..." },
+  name:   "Bitcoin",
+  image:  { large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png" },
   market_data: {
-    current_price: { usd: 43210.50 },
-    market_cap: { usd: 845200000000 },
-    total_volume: { usd: 35000000000 },
-    high_24h: { usd: 44100.00 },
-    low_24h: { usd: 42500.00 },
-    circulating_supply: 19600000,
-    price_change_percentage_24h: 2.4
-  }
+    current_price:                { usd: 65000 },
+    market_cap:                   { usd: 1270000000000 },
+    total_volume:                  { usd: 28000000000 },
+    price_change_percentage_24h:  2.4,
+    circulating_supply:           19700000,
+    ath:                          { usd: 73738 },
+  },
+  description: {
+    en: "Bitcoin is the first decentralized cryptocurrency, originally described by Satoshi Nakamoto in a 2008 whitepaper.",
+  },
 };
 
-async function fetcher(endpoint) {
-  try {
-    const res = await fetch(`${BASE_URL}${endpoint}`);
-    
-    
-    if (res.status === 429) {
-      throw new Error('RATE_LIMIT');
-    }
-    
-    if (!res.ok) {
-      throw new Error(`API call failed: ${res.status}`);
-    }
-    
-    return await res.json();
-  } catch (error) {
-    console.warn(`⚠️ API Error (${error.message}). Switching to Fallback Data.`);
-    return null; 
-  }
-}
-
-
-export async function getTopCoins() {
-  const data = await fetcher('/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=12&page=1&sparkline=false');
-  return data || MOCK_TOP_COINS; 
-}
-
-
-// Replace your getCoinData with this version
-export async function getCoinData(id) {
-  const data = await fetcher(`/coins/${id}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
-  
-  if (!data) {
-    // We return a structure that EXACTLY matches what the API would send
-    return {
-      ...MOCK_COIN_DETAILS,
-      id: id,
-      name: id.charAt(0).toUpperCase() + id.slice(1),
-      // Ensure these nested objects exist to prevent 500 errors
-      market_data: {
-        ...MOCK_COIN_DETAILS.market_data,
-        current_price: { usd: 43210.50 },
-        market_cap: { usd: 845200000000 },
-        high_24h: { usd: 44100.00 },
-        low_24h: { usd: 42500.00 },
-      },
-      image: { large: "https://assets.coingecko.com/coins/images/1/large/bitcoin.png" },
-      description: { en: "Data currently unavailable from live API. Showing cached market data." }
-    };
-  }
-  
-  return data;
-}
+export const MOCK_PRICE_HISTORY = Array.from({ length: 8 }, (_, i) => [
+  Date.now() - (7 - i) * 86400000,
+  63000 + Math.random() * 4000,
+]);
