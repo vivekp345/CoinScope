@@ -50,6 +50,7 @@ export const config = {
   matcher: [
     "/portfolio/:path*",
     "/settings/:path*",
+     "/profile/:path*",
     "/api/trades/:path*",
     "/api/user/:path*",
     "/auth/:path*",

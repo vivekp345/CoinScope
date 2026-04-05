@@ -3,24 +3,25 @@ import { MongoClient } from "mongodb";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in .env.local"
-  );
-}
-
 let client;
 let clientPromise;
 
-if (process.env.NODE_ENV === "development") {
-  // In development, cache the client on global to survive hot reloads
+// ✅ Don't throw at module level — check lazily
+if (!MONGODB_URI) {
+  // In production this will be caught when clientPromise is awaited
+  console.warn("MONGODB_URI is not defined — check environment variables");
+  clientPromise = Promise.reject(
+    new Error("MONGODB_URI is not defined")
+  );
+} else if (process.env.NODE_ENV === "development") {
+  // Cache client in dev to survive hot reloads
   if (!global._mongoClientPromise) {
     client = new MongoClient(MONGODB_URI);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  // In production, always create a fresh client
+  // Production — fresh client
   client = new MongoClient(MONGODB_URI);
   clientPromise = client.connect();
 }

@@ -3,38 +3,34 @@ import mongoose from "mongoose";
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in .env.local"
-  );
-}
-
-// Use a global cache to prevent multiple connections during hot reload in dev
+// ✅ Don't throw at module level — throw only when actually connecting
+// Throwing at module level crashes Vercel build
 let cached = global.mongoose;
-
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
 async function dbConnect() {
-  if (cached.conn) {
-    return cached.conn;
+  // ✅ Throw here instead — only when a DB call is actually made
+  if (!MONGODB_URI) {
+    throw new Error(
+      "MONGODB_URI is not defined — add it to Vercel environment variables"
+    );
   }
 
+  if (cached.conn) return cached.conn;
+
   if (!cached.promise) {
-    const opts = {
+    cached.promise = mongoose.connect(MONGODB_URI, {
       bufferCommands: false,
-    };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
     });
   }
 
   try {
     cached.conn = await cached.promise;
-  } catch (e) {
+  } catch (err) {
     cached.promise = null;
-    throw e;
+    throw err;
   }
 
   return cached.conn;

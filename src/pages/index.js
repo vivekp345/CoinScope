@@ -5,6 +5,7 @@ import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import SentimentGauge from "@/components/SentimentGauge";
 import { fetchCoins, fetchSentiment } from "@/lib/api";
+import { getBaseUrl } from "@/lib/baseUrl";
 
 // ── Coin row component ────────────────────────────────────────────────────────
 
@@ -73,9 +74,9 @@ function CoinRow({ coin, rank }) {
 
 // ── Page component ────────────────────────────────────────────────────────────
 
-export default function HomePage({ coins, sentiment }) {
-  const [search, setSearch]   = useState("");
-  const [filter, setFilter]   = useState("all"); // "all" | "gainers" | "losers"
+export default function HomePage({ coins, sentiment, baseUrl }) {
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all"); // "all" | "gainers" | "losers"
 
   // Client-side filtering — SSR data stays intact, no re-fetch needed
   const filtered = useMemo(() => {
@@ -104,12 +105,12 @@ export default function HomePage({ coins, sentiment }) {
     "@context": "https://schema.org",
     "@type":    "ItemList",
     name:       "Top Cryptocurrencies by Market Cap",
-    url:        "https://yourdomain.com",
+    url:         baseUrl,
     itemListElement: coins.slice(0, 10).map((coin, i) => ({
-      "@type":    "ListItem",
-      position:   i + 1,
-      name:       coin.name,
-      url:        `https://yourdomain.com/crypto/${coin.id}`,
+      "@type":   "ListItem",
+      position:  i + 1,
+      name:      coin.name,
+      url:       `${baseUrl}/crypto/${coin.id}`,
     })),
   };
 
@@ -122,20 +123,20 @@ export default function HomePage({ coins, sentiment }) {
           name="description"
           content="Track live cryptocurrency prices, simulate your P&L, and manage a virtual portfolio. Real-time data for Bitcoin, Ethereum, Solana and 50+ coins."
         />
-        <link rel="canonical" href="https://yourdomain.com" />
+        <link rel="canonical" href={baseUrl} />
 
         {/* Open Graph */}
         <meta property="og:type"        content="website" />
         <meta property="og:title"       content="CoinScope Pro — Live Crypto Prices & Portfolio Simulator" />
         <meta property="og:description" content="Track live crypto prices and simulate your P&L. Real-time data for 50+ coins." />
-        <meta property="og:url"         content="https://yourdomain.com" />
-        <meta property="og:image"       content="https://yourdomain.com/og-image.png" />
+        <meta property="og:url"         content={baseUrl} />
+        <meta property="og:image"       content={`${baseUrl}/og-image.png`} />
 
         {/* Twitter */}
         <meta name="twitter:card"        content="summary_large_image" />
         <meta name="twitter:title"       content="CoinScope Pro — Live Crypto Prices" />
         <meta name="twitter:description" content="Track live crypto prices and simulate your P&L." />
-        <meta name="twitter:image"       content="https://yourdomain.com/og-image.png" />
+        <meta name="twitter:image"       content={`${baseUrl}/og-image.png`} />
 
         {/* JSON-LD */}
         <script
@@ -155,8 +156,9 @@ export default function HomePage({ coins, sentiment }) {
               Live Crypto Markets
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-base max-w-xl">
-              Real-time prices for 50+ cryptocurrencies. Click any coin to simulate
-              your profit and loss, then save it to your virtual portfolio.
+              Real-time prices for 50+ cryptocurrencies. Click any coin to
+              simulate your profit and loss, then save it to your virtual
+              portfolio.
             </p>
           </div>
 
@@ -175,9 +177,16 @@ export default function HomePage({ coins, sentiment }) {
             <div className="relative flex-1">
               <svg
                 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400"
-                fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z"
+                />
               </svg>
               <input
                 type="text"
@@ -211,11 +220,21 @@ export default function HomePage({ coins, sentiment }) {
 
             {/* Table header */}
             <div className="flex items-center gap-4 px-5 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
-              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 w-6 text-right shrink-0">#</span>
-              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 flex-1">Coin</span>
-              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0">Price / 24h</span>
-              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0 hidden sm:block w-28">Market cap</span>
-              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0 hidden lg:block w-24">Volume</span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 w-6 text-right shrink-0">
+                #
+              </span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 flex-1">
+                Coin
+              </span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0">
+                Price / 24h
+              </span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0 hidden sm:block w-28">
+                Market cap
+              </span>
+              <span className="text-xs font-medium text-slate-400 dark:text-slate-500 text-right shrink-0 hidden lg:block w-24">
+                Volume
+              </span>
             </div>
 
             {/* Coin rows */}
@@ -234,7 +253,8 @@ export default function HomePage({ coins, sentiment }) {
 
           {/* Footer note */}
           <p className="mt-6 text-xs text-slate-400 dark:text-slate-600 text-center">
-            Data from CoinGecko · Prices update on page refresh · Not financial advice
+            Data from CoinGecko · Prices update on page refresh · Not
+            financial advice
           </p>
 
         </div>
@@ -244,7 +264,6 @@ export default function HomePage({ coins, sentiment }) {
 }
 
 // SSR — coins + sentiment fetched in parallel on the server
-// Page renders fully populated — zero client loading states
 export async function getServerSideProps() {
   const [coins, sentiment] = await Promise.all([
     fetchCoins(),
@@ -255,6 +274,7 @@ export async function getServerSideProps() {
     props: {
       coins,
       sentiment,
+      baseUrl: getBaseUrl(), // ✅ dynamic base URL
     },
   };
 }
