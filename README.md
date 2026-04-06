@@ -1,44 +1,72 @@
-# 🪙 CoinScope | Real-Time Crypto Analytics
+# CoinScope Pro
 
-A high-performance, SEO-optimized cryptocurrency tracking platform built with **Next.js**, **Tailwind CSS**, and the **CoinGecko API**.
-
-## Key Features
-* **Server-Side Rendering (SSR):** Powered by `getServerSideProps` to ensure data is fetched on the server, providing lightning-fast speeds and instant search engine indexability.
-* **Programmatic SEO:** Uses dynamic routing (`/crypto/[id]`) to automatically generate unique, optimized pages for every cryptocurrency.
-* **Structured Data (JSON-LD):** Implements `FinancialProduct` schema to help search engines provide rich snippets like live price and availability.
-* **Social Optimization:** Full OpenGraph (OG) integration, ensuring professional link previews with titles, descriptions, and coin images when shared.
-* **Robust Data Layer:** Features a custom fetcher with built-in API rate-limit detection and an automatic fallback to mock data to ensure 100% uptime.
-
-## 📈 SEO Strategy & Keyword Research
-The project is designed to capture high-intent organic traffic from crypto investors.
-
-### **Research Process**:
-1.  **Target Keywords:** Focused on high-volume terms such as "Live Crypto Prices," "Bitcoin Price Today," and "Market Cap Analytics".
-2.  **Search Intent:** Targeted users looking for immediate, real-time data and "snapshot" information.
-3.  **On-Page Implementation:** * **Dynamic Titles:** Used the template `{Name} ({Symbol}) Price Today | CoinScope` to rank for specific asset searches.
-    * **Semantic HTML:** Structured the UI with `<header>`, `<main>`, and `<nav>` to help crawlers understand the page hierarchy.
-
-## 🛠️ Technical Implementation & Challenges
-### **Why Next.js?**
-By using SSR instead of traditional Client-Side Rendering (CSR), we eliminate the "blank page" problem. Search engines receive fully rendered HTML, which is crucial for SEO-heavy applications.
-
-### **Overcoming Hydration Errors**
-A key challenge was a "Hydration Mismatch" caused by server-client locale differences (e.g., India vs. US number formatting). I solved this by forcing a consistent `en-US` locale string for all financial data, ensuring the server and client HTML match perfectly.
-
-
-
-## 📦 Installation
-1.  **Clone the repo:**
-    ```bash
-    git clone [https://github.com/](https://github.com/)[your-username]/[your-repo-name].git
-    ```
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-3.  **Run locally:**
-    ```bash
-    npm run dev
-    ```
+A full-stack crypto portfolio simulator to track live prices, simulate trades, and manage a virtual portfolio.
 
 ---
+
+## 🚀 Live Demo
+https://coin-scope-chi.vercel.app
+
+## 💻 GitHub Repo
+https://github.com/vivekp345/CoinScope
+
+---
+
+## 📊 Lighthouse SEO Scores
+
+| Performance | Accessibility | Best Practices | SEO |
+|------------|-------------|---------------|-----|
+| 98         | 96          | 100           | 100 |
+
+---
+
+## ✨ Features
+
+- Live cryptocurrency prices using CoinGecko API  
+- Simulated buy/sell with real-time P&L calculation  
+- Personal virtual portfolio with trade tracking  
+- 7-day interactive price charts (Chart.js)  
+- Fear & Greed market sentiment indicator  
+- Secure authentication using NextAuth (JWT-based)  
+- Protected routes (portfolio, profile, settings)  
+- Dark mode support with system preference  
+- SEO optimized with SSR, meta tags, and structured data  
+
+---
+
+## 🛠 Tech Stack
+
+- Next.js  
+- Tailwind CSS  
+- MongoDB Atlas  
+- Mongoose  
+- NextAuth.js  
+- Chart.js  
+- CoinGecko API  
+- Alternative.me API  
+- Vercel  
+
+---
+
+## 🧠 Architecture
+
+- SSR-first approach using Next.js for better SEO and performance  
+- Separation of concerns:
+  - Mongoose → application data models  
+  - MongoDB client → authentication adapter  
+- JWT-based authentication with NextAuth for secure sessions  
+- Edge middleware for route protection before rendering  
+- Client + Server split:
+  - Server → data fetching & SEO rendering  
+  - Client → charts, UI interactions  
+- Dynamic imports used for Chart.js to avoid SSR issues  
+- Resilient API handling with fallback data for rate limits  
+
+---
+
+## ⚙️ Setup & Run Locally
+
+### 1. Clone the repo
+```bash
+git clone https://github.com/yourusername/coinscope-pro.git
+cd coinscope-pro
